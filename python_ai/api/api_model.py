@@ -4,11 +4,9 @@ import joblib
 import scipy.sparse as sp
 import os
 
-app = FastAPI()
+from attack_detector import detect_attack_type
 
-# =========================
-# Load models
-# =========================
+app = FastAPI(title="AI Web Attack Detection System")
 
 BASE_DIR = os.path.dirname(__file__)
 MODELS_DIR = os.path.join(BASE_DIR, "..", "models")
@@ -19,52 +17,53 @@ model = joblib.load(os.path.join(MODELS_DIR, "best_model.pkl"))
 vectorizer = joblib.load(os.path.join(MODELS_DIR, "vectorizer.pkl"))
 scaler = joblib.load(os.path.join(MODELS_DIR, "scaler.pkl"))
 
-print("Models loaded successfully.")
+print("Models loaded successfully")
 
-# =========================
-# Request format
-# =========================
 
 class RequestData(BaseModel):
     url: str
     content: str = ""
 
 
-# =========================
-# Feature extraction
-# =========================
-
 def extract_features(url, content):
+
+    url = str(url)
+    content = str(content)
 
     return [
         len(url),
         len(content),
         sum(c in "!@#$%^&*()=+[]{}|;:',.<>?/\\"
             for c in url),
-        int(any(x in url.lower() for x in ["select","union","insert","drop","delete","update"])),
+        int(any(x in url.lower() for x in ["select","union","drop","delete","insert"])),
         int(any(x in url.lower() for x in ["<script","alert","javascript"])),
         url.count("&")
     ]
 
-
-# =========================
-# Test route
-# =========================
 
 @app.get("/")
 def home():
     return {"message": "AI API running"}
 
 
-# =========================
-# Prediction
-# =========================
-
 @app.post("/predict")
 def predict(data: RequestData):
 
     try:
 
+        # STEP 1
+        attack_type = detect_attack_type(data.url, data.content)
+
+        # إذا rule كشف attack
+        if attack_type != "unknown_attack":
+
+            return {
+                "url": data.url,
+                "prediction": "attack",
+                "attack_type": attack_type
+            }
+
+        # STEP 2
         text = data.url + " " + data.content
 
         text_vec = vectorizer.transform([text])
@@ -77,16 +76,19 @@ def predict(data: RequestData):
 
         pred = model.predict(X)[0]
 
-        # IMPORTANT: labels reversed
-        prediction = "attack" if pred == 0 else "normal"
+        # تقليل False Positives
+        if pred == 0:
+
+            return {
+                "url": data.url,
+                "prediction": "normal"
+            }
 
         return {
             "url": data.url,
-            "prediction": prediction
+            "prediction": "normal"
         }
 
     except Exception as e:
 
-        return {
-            "error": str(e)
-        }
+        return {"error": str(e)}
