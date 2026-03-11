@@ -13,8 +13,8 @@ from sklearn.metrics import classification_report
 print("Loading dataset...")
 
 BASE_DIR = os.path.dirname(__file__)
-DATASET_PATH = os.path.join(BASE_DIR, "..", "database", "csic_database.csv")
-MODELS_DIR = os.path.join(BASE_DIR, "..", "models")
+DATASET_PATH = os.path.join(BASE_DIR, "database", "csic_database.csv")
+MODELS_DIR = os.path.join(BASE_DIR, "models")
 
 os.makedirs(MODELS_DIR, exist_ok=True)
 
@@ -22,6 +22,7 @@ data = pd.read_csv(DATASET_PATH)
 
 data["URL"] = data["URL"].fillna("")
 data["content"] = data["content"].fillna("")
+
 data["text"] = data["URL"] + " " + data["content"]
 
 y = data["classification"]
@@ -38,8 +39,7 @@ def extract_features(url, content):
     return [
         len(url),
         len(content),
-        sum(c in "!@#$%^&*()=+[]{}|;:',.<>?/\\"
-            for c in url),
+        sum(c in "!@#$%^&*()=+[]{}|;:',.<>?/\\" for c in url),
         url.count("&"),
         url.count("="),
         url.count("?"),
@@ -86,11 +86,10 @@ model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
 
-print("\nClassification Report:")
 print(classification_report(y_test, y_pred))
 
 joblib.dump(model, os.path.join(MODELS_DIR, "best_model.pkl"))
 joblib.dump(vectorizer, os.path.join(MODELS_DIR, "vectorizer.pkl"))
 joblib.dump(scaler, os.path.join(MODELS_DIR, "scaler.pkl"))
 
-print("Model saved successfully")
+print("Model saved")
