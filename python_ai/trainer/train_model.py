@@ -13,7 +13,7 @@ from sklearn.metrics import classification_report
 print("Loading dataset...")
 
 BASE_DIR = os.path.dirname(__file__)
-DATASET_PATH = os.path.join(BASE_DIR, "database", "csic_database.csv")
+DATASET_PATH = os.path.join(BASE_DIR, "..", "database", "csic_database.csv")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 
 os.makedirs(MODELS_DIR, exist_ok=True)
@@ -37,15 +37,18 @@ def extract_features(url, content):
     content = str(content)
 
     return [
-        len(url),
-        len(content),
-        sum(c in "!@#$%^&*()=+[]{}|;:',.<>?/\\" for c in url),
-        url.count("&"),
+        len(url),                         # طول الرابط
+        len(content),                     # طول المحتوى
+        url.count("&"),                   # عدد parameters
         url.count("="),
         url.count("?"),
-        int(any(x in url.lower() for x in ["select","union","drop","delete","insert"])),
-        int(any(x in url.lower() for x in ["<script","alert","javascript"])),
-        int("../" in url or "..\\" in url)
+        sum(c.isdigit() for c in url),    # عدد الأرقام
+        sum(c in "!@#$%^&*()" for c in url),  # رموز مشبوهة
+        int("../" in url or "..\\" in url),   # Path Traversal
+        int("<script" in url.lower()),        # XSS
+        int("select" in url.lower()),         # SQL Injection
+        int("union" in url.lower()),
+        int("drop" in url.lower())
     ]
 
 
@@ -57,7 +60,7 @@ num_features = data.apply(
 X_num = np.array(num_features.tolist())
 
 vectorizer = TfidfVectorizer(
-    max_features=8000,
+    max_features=12000,
     ngram_range=(1,2),
     token_pattern=r"[^\s]+"
 )

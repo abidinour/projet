@@ -3,8 +3,8 @@ const sequelize = require("../config/database")
 
 const AttackLog = sequelize.define("AttackLog",{
 
-    request:{
-        type:DataTypes.STRING
+    url:{
+        type:DataTypes.TEXT
     },
 
     method:{
@@ -19,6 +19,10 @@ const AttackLog = sequelize.define("AttackLog",{
         type:DataTypes.STRING
     },
 
+    attack_type:{
+        type:DataTypes.STRING
+    },
+
     confidence:{
         type:DataTypes.FLOAT
     },
@@ -29,6 +33,11 @@ const AttackLog = sequelize.define("AttackLog",{
 
     requestLength:{
         type:DataTypes.INTEGER
+    },
+
+    timestamp:{
+        type:DataTypes.DATE,
+        defaultValue: DataTypes.NOW
     }
 
 })
