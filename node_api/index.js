@@ -33,6 +33,14 @@ app.get("/",(req,res)=>{
 })
 
 /* ==========================
+    LOGIN GET 
+========================== */
+
+app.get("/login",(req,res)=>{
+    res.send("Login route works (use POST)")
+})
+
+/* ==========================
    Register
 ========================== */
 
