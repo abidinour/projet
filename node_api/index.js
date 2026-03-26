@@ -28,7 +28,7 @@ app.use(express.json())
 app.use("/", userRoutes)
 
 // Logs & AI routes → check / logs
-app.use("/", logRoutes)
+app.use("/logs", logRoutes)
 
 // ==========================
 // Test Route
@@ -45,7 +45,7 @@ async function startServer() {
         await sequelize.authenticate()
         console.log("✅ Database connected")
 
-        await sequelize.sync()
+        await sequelize.sync({ alter: true })
         console.log("✅ Tables synced")
 
         app.listen(3000, () => {

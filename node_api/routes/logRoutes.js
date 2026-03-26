@@ -1,10 +1,111 @@
 const express = require("express")
 const router = express.Router()
 
-const { getLogs, checkUrl } = require("../controllers/logController")
+const AttackLog = require("../models/attackLog")
 const auth = require("../middleware/authMiddleware")
 
-router.post("/check", checkUrl)   // ✅ لازم checkUrl موجودة
-router.get("/logs", auth, getLogs)
+/* ==========================
+   GET ALL LOGS (🔒)
+========================== */
+router.get("/", auth, async (req, res) => {
+    try {
+
+        const logs = await AttackLog.findAll({
+            order: [["timestamp", "DESC"]]
+        })
+
+        res.json(logs)
+
+    } catch (error) {
+
+        console.log("❌ GET LOGS ERROR:", error.message)
+
+        res.status(500).json({
+            error: "Database error"
+        })
+    }
+})
+
+/* ==========================
+   CLEAN NULL LOGS (🔥 IMPORTANT)
+   ⚠️ لازم قبل /:id
+========================== */
+router.delete("/cleanup/null", auth, async (req, res) => {
+    try {
+
+        const deleted = await AttackLog.destroy({
+            where: { url: null }
+        })
+
+        res.json({
+            message: "Null logs deleted",
+            count: deleted
+        })
+
+    } catch (error) {
+
+        console.log("❌ CLEAN ERROR:", error.message)
+
+        res.status(500).json({
+            error: "Cleanup error"
+        })
+    }
+})
+
+/* ==========================
+   GET LOG BY ID
+========================== */
+router.get("/:id", auth, async (req, res) => {
+    try {
+
+        const log = await AttackLog.findByPk(req.params.id)
+
+        if (!log) {
+            return res.status(404).json({
+                error: "Log not found"
+            })
+        }
+
+        res.json(log)
+
+    } catch (error) {
+
+        console.log("❌ GET LOG ERROR:", error.message)
+
+        res.status(500).json({
+            error: "Database error"
+        })
+    }
+})
+
+/* ==========================
+   DELETE LOG BY ID
+========================== */
+router.delete("/:id", auth, async (req, res) => {
+    try {
+
+        const deleted = await AttackLog.destroy({
+            where: { id: req.params.id }
+        })
+
+        if (!deleted) {
+            return res.status(404).json({
+                error: "Log not found"
+            })
+        }
+
+        res.json({
+            message: "Log deleted"
+        })
+
+    } catch (error) {
+
+        console.log("❌ DELETE LOG ERROR:", error.message)
+
+        res.status(500).json({
+            error: "Delete error"
+        })
+    }
+})
 
 module.exports = router
