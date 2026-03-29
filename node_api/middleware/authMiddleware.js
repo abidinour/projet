@@ -2,23 +2,33 @@ const jwt = require("jsonwebtoken")
 
 const SECRET = "mysecretkey"
 
-module.exports = (req,res,next)=>{
+module.exports = (req, res, next) => {
 
-    const token = req.headers["authorization"]
+    let token = req.headers["authorization"]
 
-    if(!token){
-        return res.status(403).json({ error:"No token" })
+    if (!token) {
+        return res.status(403).json({ error: "No token" })
     }
 
-    try{
+    // 🔥 fix Bearer
+    if (token.startsWith("Bearer ")) {
+        token = token.split(" ")[1]
+    }
 
-        const decoded = jwt.verify(token,SECRET)
+    try {
 
+        const decoded = jwt.verify(token, SECRET)
         req.user = decoded
 
         next()
 
-    }catch(err){
-        return res.status(401).json({ error:"Invalid token" })
+    } catch (err) {
+
+        console.log("❌ TOKEN ERROR:", err.message)
+
+        return res.status(401).json({
+            error: "Invalid token"
+        })
+
     }
 }
