@@ -10,13 +10,14 @@ function Login() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
+
   const navigate = useNavigate()
 
   const handleLogin = (e) => {
     e.preventDefault()
     setError("")
 
-    axios.post("http://localhost:3000/login", {
+    axios.post("http://localhost:5000/login", {
       email,
       password
     })
@@ -52,6 +53,7 @@ function Login() {
               placeholder="email@example.com"
               value={email}
               onChange={(e)=>setEmail(e.target.value)}
+              required
             />
           </div>
 
@@ -64,6 +66,7 @@ function Login() {
               placeholder="********"
               value={password}
               onChange={(e)=>setPassword(e.target.value)}
+              required
             />
             <span
               className="eye"
@@ -71,14 +74,6 @@ function Login() {
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
-          </div>
-
-          {/* OPTIONS */}
-          <div className="options">
-            <label>
-              <input type="checkbox" /> Remember me
-            </label>
-            <span className="forgot">Forgot Password?</span>
           </div>
 
           {/* ERROR */}
