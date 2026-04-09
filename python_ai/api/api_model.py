@@ -11,8 +11,7 @@ app = FastAPI()
 # ===============================
 # Load Models
 # ===============================
-
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.join(BASE_DIR, "..", "models")
 
 model = joblib.load(os.path.join(MODELS_DIR, "best_model.pkl"))
@@ -22,17 +21,14 @@ scaler = joblib.load(os.path.join(MODELS_DIR, "scaler.pkl"))
 # ===============================
 # Request Model
 # ===============================
-
 class RequestData(BaseModel):
     url: str
     content: str = ""
 
 # ===============================
-# Feature Extraction (IMPORTANT: same as training)
+# Feature Extraction
 # ===============================
-
 def extract_features(url, content):
-
     url = str(url)
     content = str(content)
 
@@ -51,27 +47,19 @@ def extract_features(url, content):
         int("drop" in url.lower())
     ]
 
-# ===============================
-# Home Route
-# ===============================
-
 @app.get("/")
 def home():
     return {"message": "AI Security API running"}
 
 # ===============================
-# Prediction Route
+# Prediction
 # ===============================
-
 @app.post("/predict")
 def predict(data: RequestData):
-
     try:
-        # ===============================
-        # 1) Rule-based detection (fast & accurate)
-        # ===============================
         attack_type = detect_attack_type(data.url, data.content)
 
+        # Rule-based
         if attack_type != "unknown_attack":
             return {
                 "url": data.url,
@@ -80,37 +68,24 @@ def predict(data: RequestData):
                 "confidence": 0.95
             }
 
-        # ===============================
-        # 2) AI Detection
-        # ===============================
+        # ML
         text = data.url + " " + data.content
-
         text_vec = vectorizer.transform([text])
 
         num = extract_features(data.url, data.content)
-
-        # Fix any mismatch safely
         num_scaled = scaler.transform([num])
 
         X = sp.hstack([text_vec, sp.csr_matrix(num_scaled)])
 
         pred = model.predict(X)[0]
 
-        # ===============================
-        # Confidence
-        # ===============================
         try:
             decision = model.decision_function(X)[0]
-            confidence = float(abs(decision))
+            confidence = min(abs(decision), 1.0)
         except:
             confidence = 0.5
 
-        # ===============================
-        # Smart Threshold (ANTI FALSE POSITIVE)
-        # ===============================
-        THRESHOLD = 0.8
-
-        if pred == 1 and confidence > THRESHOLD:
+        if pred == 1 and confidence > 0.8:
             return {
                 "url": data.url,
                 "prediction": "attack",
@@ -118,9 +93,6 @@ def predict(data: RequestData):
                 "confidence": confidence
             }
 
-        # ===============================
-        # Normal request
-        # ===============================
         return {
             "url": data.url,
             "prediction": "normal",
@@ -129,10 +101,6 @@ def predict(data: RequestData):
         }
 
     except Exception as e:
-
-        # ===============================
-        # Safety fallback (NO CRASH)
-        # ===============================
         return {
             "url": data.url,
             "prediction": "normal",

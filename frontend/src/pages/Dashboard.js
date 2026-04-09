@@ -1,125 +1,181 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
-import "./Dashboard.css"
+import { useNavigate } from "react-router-dom"
+import {
+  PieChart, Pie, Cell, Tooltip, ResponsiveContainer
+} from "recharts"
 
-function Dashboard() {
+export default function Dashboard() {
 
   const [logs, setLogs] = useState([])
-  const token = localStorage.getItem("token")
-
-  const fetchLogs = () => {
-    axios.get("http://localhost:5000/logs", {
-      headers: { Authorization: token }
-    })
-    .then(res => setLogs(res.data))
-    .catch(err => console.log(err.response?.data))
-  }
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchLogs()
+
+    // 🔥 REALTIME REFRESH
+    const interval = setInterval(fetchLogs, 3000)
+    return () => clearInterval(interval)
+
   }, [])
 
-  // stats
+  const fetchLogs = async () => {
+    try {
+      const token = localStorage.getItem("token")
+
+      const res = await axios.get("http://localhost:5000/logs", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      setLogs(res.data)
+
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   const total = logs.length
   const attacks = logs.filter(l => l.prediction === "attack").length
   const normal = logs.filter(l => l.prediction === "normal").length
 
-  const accuracy = total ? ((normal / total) * 100).toFixed(1) : 0
+  const data = [
+    { name: "Attacks", value: attacks },
+    { name: "Normal", value: normal }
+  ]
 
   return (
-    <div className="dashboard">
+    <div className="flex h-screen bg-gray-950 text-white">
 
       {/* SIDEBAR */}
-      <div className="sidebar">
-        <h2>NEXALYTICS</h2>
-        <p className="menu active">Dashboard</p>
-        <p className="menu">Logs</p>
-        <p className="menu logout"
-           onClick={() => {
-             localStorage.removeItem("token")
-             window.location.href = "/"
-           }}
+      <div className="w-64 bg-black p-6 flex flex-col">
+
+        <h2 className="text-2xl font-bold text-teal-400 mb-10">
+          NEXALYTICS
+        </h2>
+
+        <button className="bg-teal-500 p-2 rounded mb-3">
+          Dashboard
+        </button>
+
+        <button
+          onClick={() => navigate("/simulation")}
+          className="hover:bg-gray-800 p-2 rounded mb-3"
+        >
+          Simulation
+        </button>
+
+        <button
+          onClick={() => {
+            localStorage.removeItem("token")
+            navigate("/")
+          }}
+          className="mt-auto bg-red-500 p-2 rounded"
         >
           Logout
-        </p>
+        </button>
+
       </div>
 
       {/* MAIN */}
-      <div className="main">
+      <div className="flex-1 p-6 overflow-auto">
 
-        <h1>AI Logs Dashboard 🚀</h1>
+        <h1 className="text-3xl font-bold mb-6">
+          Cybersecurity Dashboard 🛡️
+        </h1>
 
         {/* CARDS */}
-        <div className="cards">
+        <div className="grid grid-cols-4 gap-6 mb-6">
 
-          <div className="card">
-            <h3>Total Logs</h3>
-            <p>{total}</p>
-          </div>
+          <Card title="Total Logs" value={total} color="bg-blue-500" />
+          <Card title="Attacks" value={attacks} color="bg-red-500" />
+          <Card title="Normal" value={normal} color="bg-green-500" />
+          <Card title="Status" value="ACTIVE" color="bg-purple-500" />
 
-          <div className="card red">
-            <h3>Attacks</h3>
-            <p>{attacks}</p>
-          </div>
+        </div>
 
-          <div className="card green">
-            <h3>Normal</h3>
-            <p>{normal}</p>
-          </div>
+        {/* CHART */}
+        <div className="bg-gray-900 p-5 rounded-xl mb-6">
 
-          <div className="card blue">
-            <h3>Accuracy</h3>
-            <p>{accuracy}%</p>
-          </div>
+          <h3 className="mb-4 text-xl">Traffic Analysis</h3>
+
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                outerRadius={100}
+                label
+              >
+                <Cell fill="#ef4444" />
+                <Cell fill="#22c55e" />
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
 
         </div>
 
         {/* TABLE */}
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>URL</th>
-              <th>Type</th>
-              <th>Confidence</th>
-            </tr>
-          </thead>
+        <div className="bg-gray-900 rounded-xl p-4">
 
-          <tbody>
-            {logs.map(log => (
-              <tr key={log.id}>
-                <td>{log.id}</td>
+          <h3 className="text-xl mb-4">Live Logs</h3>
 
-                <td className="url">{log.url}</td>
+          <table className="w-full text-sm">
 
-                <td>
-                  <span className={
-                    log.prediction === "attack"
-                      ? "badge red"
-                      : "badge green"
-                  }>
-                    {log.attack_type || log.prediction}
-                  </span>
-                </td>
-
-                <td>
-                  <div className="progress">
-                    <div
-                      className="bar"
-                      style={{ width: `${log.confidence * 100}%` }}
-                    ></div>
-                  </div>
-                </td>
-
+            <thead>
+              <tr className="bg-gray-800">
+                <th className="p-3">URL</th>
+                <th>Type</th>
+                <th>Confidence</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+
+              {logs.map(log => (
+                <tr key={log.id} className="border-b border-gray-700">
+
+                  <td className="p-2">{log.url}</td>
+
+                  <td>
+                    <span className={`px-2 py-1 rounded text-xs
+                      ${log.prediction === "attack"
+                        ? "bg-red-500"
+                        : "bg-green-500"}
+                    `}>
+                      {log.prediction}
+                    </span>
+                  </td>
+
+                  <td className="w-40">
+                    <div className="bg-gray-700 h-2 rounded">
+                      <div
+                        className="bg-green-500 h-2 rounded"
+                        style={{ width: `${log.confidence * 100}%` }}
+                      ></div>
+                    </div>
+                  </td>
+
+                </tr>
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </div>
-
     </div>
   )
 }
 
-export default Dashboard
+/* CARD COMPONENT */
+function Card({ title, value, color }) {
+  return (
+    <div className={`${color} p-5 rounded-xl shadow`}>
+      <h4>{title}</h4>
+      <p className="text-2xl font-bold">{value}</p>
+    </div>
+  )
+}

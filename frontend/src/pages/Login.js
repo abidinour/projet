@@ -1,92 +1,58 @@
 import { useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa"
-import "./login.css"
 
-function Login() {
-
+export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
-
   const navigate = useNavigate()
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    setError("")
+    try {
+      const res = await axios.post("http://localhost:5000/login", {
+        email,
+        password,
+      })
 
-    axios.post("http://localhost:5000/login", {
-      email,
-      password
-    })
-    .then(res => {
       localStorage.setItem("token", res.data.token)
       navigate("/dashboard")
-    })
-    .catch(err => {
-      setError(err.response?.data?.error || "Login failed")
-    })
+    } catch (err) {
+      setError("Invalid credentials")
+    }
   }
 
   return (
-    <div className="login-container">
+    <div className="h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded-xl shadow-lg w-96">
+        <h2 className="text-2xl font-bold text-center mb-4">
+          AI Web Attack Detection
+        </h2>
 
-      <div className="login-card">
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full p-3 border rounded mb-3"
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-        <h2 className="logo">NEXALYTICS</h2>
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full p-3 border rounded mb-3"
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-        <h3>AI Web Attack Detection</h3>
-        <p className="subtitle">
-          Log in with your administrator credentials to monitor live threats.
-        </p>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        <form onSubmit={handleLogin}>
-
-          {/* EMAIL */}
-          <label>Email Address</label>
-          <div className="input-group">
-            <FaEnvelope className="icon" />
-            <input
-              type="email"
-              placeholder="email@example.com"
-              value={email}
-              onChange={(e)=>setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* PASSWORD */}
-          <label>Password</label>
-          <div className="input-group">
-            <FaLock className="icon" />
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="********"
-              value={password}
-              onChange={(e)=>setPassword(e.target.value)}
-              required
-            />
-            <span
-              className="eye"
-              onClick={()=>setShowPassword(!showPassword)}
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </span>
-          </div>
-
-          {/* ERROR */}
-          {error && <p className="error">{error}</p>}
-
-          <button type="submit">Sign In →</button>
-
-        </form>
-
+        <button
+          onClick={handleLogin}
+          className="w-full bg-teal-500 text-white p-3 rounded mt-3"
+        >
+          Sign In
+        </button>
       </div>
-
     </div>
   )
 }
-
-export default Login

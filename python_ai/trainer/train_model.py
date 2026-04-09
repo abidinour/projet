@@ -18,7 +18,7 @@ MODELS_DIR = os.path.join(BASE_DIR, "..", "models")
 
 os.makedirs(MODELS_DIR, exist_ok=True)
 
-data = pd.read_csv(DATASET_PATH)
+data = pd.read_csv(DATASET_PATH, encoding="latin-1")
 
 data["URL"] = data["URL"].fillna("")
 data["content"] = data["content"].fillna("")

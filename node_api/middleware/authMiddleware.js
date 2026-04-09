@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken")
-
-const SECRET = "mysecretkey"
+require("dotenv").config()
 
 module.exports = (req, res, next) => {
 
@@ -10,25 +9,15 @@ module.exports = (req, res, next) => {
         return res.status(403).json({ error: "No token" })
     }
 
-    // 🔥 fix Bearer
     if (token.startsWith("Bearer ")) {
         token = token.split(" ")[1]
     }
 
     try {
-
-        const decoded = jwt.verify(token, SECRET)
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
         req.user = decoded
-
         next()
-
     } catch (err) {
-
-        console.log("❌ TOKEN ERROR:", err.message)
-
-        return res.status(401).json({
-            error: "Invalid token"
-        })
-
+        return res.status(401).json({ error: "Invalid token" })
     }
 }

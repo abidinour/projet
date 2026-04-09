@@ -1,20 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-
 import Login from "./pages/Login"
 import Dashboard from "./pages/Dashboard"
-import ProtectedRoute from "./components/ProtectedRoute "
+import Simulation from "./pages/Simulation"
+import ProtectedRoute from "./components/ProtectedRoute"
 
 function App() {
-
   return (
     <BrowserRouter>
-
       <Routes>
-
-        {/* LOGIN */}
         <Route path="/" element={<Login />} />
 
-        {/* DASHBOARD (PROTECTED 🔐) */}
         <Route
           path="/dashboard"
           element={
@@ -24,13 +19,16 @@ function App() {
           }
         />
 
-        {/* FALLBACK (any wrong URL) */}
-        <Route path="*" element={<Login />} />
-
+        <Route
+          path="/simulation"
+          element={
+            <ProtectedRoute>
+              <Simulation />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-
     </BrowserRouter>
   )
 }
-
 export default App

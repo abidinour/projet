@@ -1,19 +1,14 @@
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #f5f6fa;
-}
-
 .dashboard {
   display: flex;
+  height: 100vh;
+  font-family: Arial;
 }
 
 /* SIDEBAR */
 .sidebar {
   width: 220px;
-  background: #0f172a;
+  background: #0b1c2c;
   color: white;
-  height: 100vh;
   padding: 20px;
 }
 
@@ -21,83 +16,72 @@ body {
   margin-bottom: 30px;
 }
 
-.menu {
-  margin: 15px 0;
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 12px;
   cursor: pointer;
+  border-radius: 8px;
 }
 
-.menu.active {
-  color: #22c55e;
-}
-
-.logout {
-  margin-top: 40px;
-  color: #ef4444;
+.sidebar li:hover,
+.sidebar .active {
+  background: #1abc9c;
 }
 
 /* MAIN */
 .main {
   flex: 1;
   padding: 30px;
-}
-
-h1 {
-  margin-bottom: 20px;
+  background: #f4f6f9;
 }
 
 /* CARDS */
 .cards {
   display: flex;
   gap: 20px;
-  margin-bottom: 30px;
+  margin: 20px 0;
 }
 
 .card {
+  flex: 1;
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+}
+
+.green { background: #1abc9c; }
+.red { background: #e74c3c; }
+.blue { background: #3498db; }
+.purple { background: #9b59b6; }
+
+/* TABLE */
+.table-container {
   background: white;
   padding: 20px;
   border-radius: 10px;
-  flex: 1;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-.card.red {
-  border-left: 5px solid #ef4444;
-}
-
-.card.green {
-  border-left: 5px solid #22c55e;
-}
-
-.card.blue {
-  border-left: 5px solid #3b82f6;
-}
-
-/* TABLE */
 table {
   width: 100%;
-  background: white;
-  border-radius: 10px;
-  overflow: hidden;
   border-collapse: collapse;
 }
 
 th {
-  background: #14b8a6;
+  background: #1abc9c;
   color: white;
   padding: 10px;
 }
 
 td {
   padding: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #ddd;
 }
 
-.url {
-  max-width: 400px;
-  overflow: hidden;
-}
-
-/* BADGE */
+/* BADGES */
 .badge {
   padding: 5px 10px;
   border-radius: 20px;
@@ -105,23 +89,21 @@ td {
   font-size: 12px;
 }
 
-.badge.red {
-  background: #ef4444;
-}
-
-.badge.green {
-  background: #22c55e;
-}
+.badge.normal { background: #2ecc71; }
+.badge.sql_injection { background: #e74c3c; }
+.badge.xss { background: orange; }
+.badge.remote_file_inclusion { background: purple; }
 
 /* PROGRESS */
 .progress {
-  background: #eee;
+  width: 100%;
   height: 8px;
-  border-radius: 5px;
+  background: #eee;
+  border-radius: 10px;
 }
 
 .bar {
-  height: 100%;
-  background: #22c55e;
-  border-radius: 5px;
+  height: 8px;
+  background: #2ecc71;
+  border-radius: 10px;
 }
