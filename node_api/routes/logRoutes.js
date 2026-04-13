@@ -4,9 +4,6 @@ const router = express.Router()
 const AttackLog = require("../models/attackLog")
 const auth = require("../middleware/authMiddleware")
 
-/* ==========================
-   GET ALL LOGS (🔒)
-========================== */
 router.get("/", auth, async (req, res) => {
     try {
 
@@ -26,10 +23,6 @@ router.get("/", auth, async (req, res) => {
     }
 })
 
-/* ==========================
-   CLEAN NULL LOGS (🔥 IMPORTANT)
-   ⚠️ لازم قبل /:id
-========================== */
 router.delete("/cleanup/null", auth, async (req, res) => {
     try {
 
@@ -52,9 +45,6 @@ router.delete("/cleanup/null", auth, async (req, res) => {
     }
 })
 
-/* ==========================
-   GET LOG BY ID
-========================== */
 router.get("/:id", auth, async (req, res) => {
     try {
 
@@ -78,9 +68,6 @@ router.get("/:id", auth, async (req, res) => {
     }
 })
 
-/* ==========================
-   DELETE LOG BY ID
-========================== */
 router.delete("/:id", auth, async (req, res) => {
     try {
 

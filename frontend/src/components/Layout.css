@@ -1,0 +1,158 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.layout-shell {
+  display: flex;
+  height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  background: #f4f6fa;
+  color: #1a1a2e;
+}
+
+/* ── SIDEBAR ── */
+.layout-sidebar {
+  width: 200px;
+  background: #fff;
+  border-right: 1px solid #e8ecf2;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  flex-shrink: 0;
+}
+
+.layout-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+  padding: 0 6px;
+}
+
+.layout-logo-text {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #1a1a2e;
+}
+
+/* NAV */
+.layout-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.layout-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #6b7280;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.layout-nav-item:hover {
+  background: #f4f6fa;
+  color: #1a1a2e;
+}
+
+.layout-nav-item.active {
+  background: #f0faf9;
+  color: #14b8a6;
+  font-weight: 600;
+}
+
+.layout-nav-item.active svg {
+  color: #14b8a6;
+}
+
+/* USER */
+.layout-user-block {
+  margin-top: auto;
+  padding: 12px;
+  border-top: 1px solid #e8ecf2;
+  margin-bottom: 8px;
+}
+
+.layout-user-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.layout-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #14b8a6;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.layout-user-name  { font-size: 13px; font-weight: 600; color: #1a1a2e; }
+.layout-user-email { font-size: 11px; color: #9ca3af; }
+
+.layout-auth-badge {
+  margin-top: 5px;
+  font-size: 11px;
+  color: #16a34a;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.layout-auth-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #16a34a;
+  display: inline-block;
+}
+
+/* LOGOUT */
+.layout-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #6b7280;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.layout-logout:hover {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+/* ── PAGE CONTENT ── */
+.layout-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

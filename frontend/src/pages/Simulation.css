@@ -1,63 +1,236 @@
-.sim-container {
-  padding: 40px;
-  background: #f4f6f9;
-  height: 100vh;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-/* SCENARIOS */
-.scenarios {
+/* ── MAIN WRAPPER ── */
+.sim-main {
+  flex: 1;
   display: flex;
-  gap: 20px;
-  justify-content: center;
-  margin-bottom: 30px;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.box {
-  padding: 20px;
-  border: 2px solid #3498db;
-  border-radius: 10px;
-  background: white;
+/* TOPBAR */
+.sim-topbar {
+  display: flex;
+  align-items: center;
+  padding: 16px 28px;
+  background: #fff;
+  border-bottom: 1px solid #e8ecf2;
+  flex-shrink: 0;
+}
+
+.sim-page-title { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+.sim-page-sub   { font-size: 12.5px; color: #9ca3af; margin-top: 2px; }
+
+/* SCROLLABLE CONTENT */
+.sim-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 28px;
+}
+
+.sim-wrapper {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* PRESETS */
+.sim-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.sim-presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.sim-preset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 12px;
+  background: #fff;
+  border: 2px solid #e8ecf2;
+  border-radius: 12px;
   cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #374151;
+  transition: border-color 0.15s, background 0.15s;
 }
 
-/* CONFIG */
-.config {
-  max-width: 600px;
-  margin: auto;
-  background: white;
-  padding: 25px;
+.sim-preset-btn:hover {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.sim-preset-btn.active {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.sim-preset-icon {
+  width: 40px; height: 40px;
+  background: #eff6ff;
   border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: #3b82f6;
+  margin-bottom: 2px;
 }
 
-.config h2 {
-  margin-bottom: 15px;
-  color: #2c3e50;
+/* CONFIG CARD */
+.sim-config-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e8ecf2;
+  padding: 28px;
 }
 
-label {
+.sim-field { margin-bottom: 22px; }
+
+.sim-field-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 10px;
   display: block;
-  margin-top: 15px;
-  font-weight: bold;
 }
 
-input, select {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
+/* SELECT */
+.sim-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1.5px solid #e8ecf2;
+  border-radius: 9px;
+  padding: 10px 14px;
+  gap: 10px;
 }
 
-button {
-  margin-top: 20px;
+.sim-select-wrap select {
+  position: absolute; inset: 0;
+  opacity: 0;
+  width: 100%; height: 100%;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.sim-select-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  pointer-events: none;
+}
+
+.sim-select-text { font-size: 14px; font-weight: 500; color: #374151; }
+.sim-select-sub  { font-size: 12px; color: #9ca3af; margin-left: 4px; }
+
+.sim-chevron {
+  margin-left: auto;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* RANGE */
+.sim-range-wrap { padding-bottom: 20px; }
+
+.sim-range {
   width: 100%;
-  padding: 15px;
-  background: #27ae60;
-  color: white;
-  border: none;
-  font-weight: bold;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 10px;
+  outline: none;
   cursor: pointer;
 }
+
+.sim-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  cursor: pointer;
+}
+
+.sim-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #9ca3af;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+/* INPUTS */
+.sim-input {
+  width: 100%;
+  border: 1.5px solid #e8ecf2;
+  border-radius: 9px;
+  padding: 11px 14px;
+  font-size: 14px;
+  color: #374151;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.sim-input:focus { border-color: #3b82f6; }
+
+.sim-input-with-addon {
+  display: flex;
+  border: 1.5px solid #e8ecf2;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.sim-input-with-addon input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 11px 14px;
+  font-size: 14px;
+  color: #374151;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.sim-addon {
+  background: #f4f6fa;
+  border-left: 1.5px solid #e8ecf2;
+  padding: 11px 14px;
+  font-size: 13px;
+  color: #9ca3af;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+/* START BUTTON */
+.sim-start-btn {
+  width: 100%;
+  padding: 16px;
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s, transform 0.1s;
+  margin-top: 6px;
+}
+
+.sim-start-btn:hover   { background: #16a34a; }
+.sim-start-btn:active  { transform: scale(0.99); }
+.sim-start-btn:disabled { background: #86efac; cursor: not-allowed; }
