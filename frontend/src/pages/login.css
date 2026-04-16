@@ -1,121 +1,177 @@
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #f3f4f6;
-}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-.login-container {
-  height: 100vh;
+.login-page {
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  background: #f0f2f5;
+  font-family: 'DM Sans', sans-serif;
 }
 
 .login-card {
-  background: white;
-  padding: 35px;
-  width: 360px;
-  border-radius: 14px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-  animation: fadeIn 0.5s ease;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+  padding: 40px 40px 36px;
+  width: 100%;
+  max-width: 400px;
+  animation: fadeUp 0.45s ease;
 }
 
-.logo {
-  text-align: center;
-  color: #14b8a6;
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-h3 {
-  text-align: center;
-  margin: 5px;
-}
-
-.subtitle {
-  text-align: center;
-  font-size: 13px;
-  color: gray;
+.logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin-bottom: 20px;
 }
 
-label {
+.logo-text {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #1a1a2e;
+}
+
+.card-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 6px;
+}
+
+.card-subtitle {
+  text-align: center;
   font-size: 13px;
-  margin-top: 10px;
+  color: #888;
+  margin: 0 0 26px;
+  line-height: 1.5;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
   display: block;
 }
 
-/* INPUT WITH ICON */
-.input-group {
+.input-wrap {
   display: flex;
   align-items: center;
-  background: #f9fafb;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 5px 10px;
-  margin-top: 5px;
+  background: #f0f6ff;
+  border: 1.5px solid #e5eaf3;
+  border-radius: 9px;
+  padding: 0 12px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
 }
 
-.input-group input {
-  border: none;
-  outline: none;
-  background: transparent;
-  padding: 10px;
+.input-wrap:focus-within {
+  border-color: #14b8a6;
+}
+
+.input-wrap svg {
+  color: #aab4c4;
+  flex-shrink: 0;
+}
+
+.input-wrap input {
   flex: 1;
-}
-
-.icon {
-  color: gray;
-}
-
-.eye {
-  cursor: pointer;
-  color: gray;
-}
-
-/* OPTIONS */
-.options {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-  font-size: 12px;
-}
-
-.forgot {
-  color: #14b8a6;
-  cursor: pointer;
-}
-
-/* ERROR */
-.error {
-  color: red;
-  font-size: 12px;
-  margin-top: 10px;
-}
-
-/* BUTTON */
-button {
-  width: 100%;
-  margin-top: 20px;
-  padding: 12px;
-  background: #14b8a6;
-  color: white;
   border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
+  background: transparent;
+  outline: none;
+  padding: 12px 10px;
+  font-size: 14px;
+  color: #1a1a2e;
+  font-family: 'DM Sans', sans-serif;
 }
 
-button:hover {
+.input-wrap input::placeholder {
+  color: #aab4c4;
+}
+
+.eye-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #aab4c4;
+  display: flex;
+  align-items: center;
+  width: auto;
+  margin: 0;
+}
+
+.options-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  font-size: 13px;
+}
+
+.remember-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  color: #374151;
+}
+
+.remember-label input[type="checkbox"] {
+  accent-color: #14b8a6;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.forgot-link {
+  color: #14b8a6;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  padding: 0;
+  width: auto;
+  margin: 0;
+}
+
+.sign-in-btn {
+  width: 100%;
+  padding: 13px;
+  background: #14b8a6;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+  font-family: 'DM Sans', sans-serif;
+  margin: 0;
+}
+
+.sign-in-btn:hover {
   background: #0f766e;
 }
 
-/* ANIMATION */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px)
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0)
-  }
+.error-msg {
+  color: #ef4444;
+  font-size: 12.5px;
+  text-align: center;
+  margin-bottom: 10px;
 }

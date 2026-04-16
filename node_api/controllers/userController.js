@@ -2,11 +2,8 @@ const User = require("../models/User")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 
-const SECRET = "mysecretkey"
+const SECRET = process.env.JWT_SECRET || "mysecretkey"
 
-/* ==========================
-   REGISTER
-========================== */
 exports.register = async (req, res) => {
     try {
 
@@ -18,7 +15,6 @@ exports.register = async (req, res) => {
             })
         }
 
-        // ✅ check if email exists
         const exist = await User.findOne({ where: { email } })
 
         if (exist) {
@@ -27,7 +23,6 @@ exports.register = async (req, res) => {
             })
         }
 
-        // ✅ hash password
         const hashedPassword = await bcrypt.hash(password, 10)
 
         await User.create({
@@ -49,9 +44,6 @@ exports.register = async (req, res) => {
     }
 }
 
-/* ==========================
-   LOGIN (JWT)
-========================== */
 exports.login = async (req, res) => {
     try {
 
