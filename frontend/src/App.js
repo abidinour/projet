@@ -3,7 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Login from "./pages/Login"
 import Dashboard from "./pages/Dashboard"
 import Simulation from "./pages/Simulation"
-import Statistiques from "./pages/Statistiques" // 🆕 zidna hedhi
+import Statistiques from "./pages/Statistiques"
+import Admins from "./pages/Admins"
 
 import ProtectedRoute from "./components/ProtectedRoute"
 
@@ -12,8 +13,10 @@ function App() {
     <BrowserRouter>
       <Routes>
 
+        {/* PUBLIC */}
         <Route path="/" element={<Login />} />
 
+        {/* PROTECTED ROUTES */}
         <Route
           path="/dashboard"
           element={
@@ -32,12 +35,20 @@ function App() {
           }
         />
 
-        {/* 🆕 page statistiques */}
         <Route
           path="/statistiques"
           element={
             <ProtectedRoute>
               <Statistiques />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admins"
+          element={
+            <ProtectedRoute>
+              <Admins />
             </ProtectedRoute>
           }
         />
