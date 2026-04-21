@@ -11,7 +11,7 @@ const {
 
 const auth = require("../middleware/authMiddleware")
 
-router.post("/register", register)
+router.post("/create", register)
 router.post("/login", login)
 
 router.get("/users", getUsers)

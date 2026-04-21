@@ -35,8 +35,10 @@ export default function Layout({ children }) {
             onClick={() => navigate("/dashboard")}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-              <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
             </svg>
             Dashboard
           </button>
@@ -50,7 +52,32 @@ export default function Layout({ children }) {
             </svg>
             Simulation
           </button>
+
+          <button
+            className={`layout-nav-item ${isActive("/statistiques") ? "active" : ""}`}
+            onClick={() => navigate("/statistiques")}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="4" y1="20" x2="4" y2="10"/>
+              <line x1="10" y1="20" x2="10" y2="4"/>
+              <line x1="16" y1="20" x2="16" y2="14"/>
+              <line x1="22" y1="20" x2="22" y2="8"/>
+            </svg>
+            Statistics
+          </button>
+
         </nav>
+
+        <button
+          className={`layout-nav-item ${isActive("/admins") ? "active" : ""}`}
+          onClick={() => navigate("/admins")}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.26 1.3.73 1.77.47.47 1.11.73 1.77.73H21a2 2 0 1 1 0 4h-.09c-.66 0-1.3.26-1.77.73-.47.47-.73 1.11-.73 1.77z"/>
+          </svg>
+          Admins
+        </button>
 
         {/* USER BLOCK */}
         <div className="layout-user-block">
@@ -78,7 +105,6 @@ export default function Layout({ children }) {
 
       </div>
 
-      {/* PAGE CONTENT */}
       <div className="layout-content">
         {children}
       </div>

@@ -13,10 +13,12 @@ const sequelize = require("./config/database")
 const userRoutes = require("./routes/userRoutes")
 const logRoutes = require("./routes/logRoutes")
 const simulationRoutes = require("./routes/simulationRoutes")
+const adminRoutes = require("./routes/adminRoutes");
 
 app.use("/", userRoutes)
 app.use("/logs", logRoutes)
 app.use("/simulation", simulationRoutes)
+app.use("/admins", adminRoutes);
 
 app.get("/", (req, res) => {
   res.send("🚀 AI Security Server Running")

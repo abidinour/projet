@@ -23,6 +23,86 @@ router.get("/", auth, async (req, res) => {
     }
 })
 
+router.get("/stats", auth, async (req, res) => {
+    try {
+
+        const logs = await AttackLog.findAll({
+            order: [["timestamp", "ASC"]]
+        })
+
+        const total = logs.length
+        const attacks = logs.filter(l => l.prediction === "attack").length
+        const normal = logs.filter(l => l.prediction === "normal").length
+
+        const accuracy = total ? ((normal / total) * 100).toFixed(2) : 0
+
+        // by type
+        const byType = {}
+
+        logs.forEach(log => {
+            if (log.attack_type && log.attack_type !== "none") {
+                byType[log.attack_type] = (byType[log.attack_type] || 0) + 1
+            }
+        })
+
+        // timeline
+        const timeline = {}
+
+        logs.forEach(log => {
+            const time = new Date(log.timestamp).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+            })
+
+            if (!timeline[time]) timeline[time] = 0
+
+            if (log.prediction === "attack") {
+                timeline[time]++
+            }
+        })
+
+        const timelineData = Object.keys(timeline).map(t => ({
+            time: t,
+            attacks: timeline[t]
+        }))
+
+        // top urls
+        const urlMap = {}
+
+        logs.forEach(log => {
+            if (log.prediction === "attack") {
+                urlMap[log.url] = (urlMap[log.url] || 0) + 1
+            }
+        })
+
+        const topUrls = Object.keys(urlMap)
+            .map(url => ({ url, count: urlMap[url] }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5)
+
+        res.json({
+            total,
+            attacks,
+            normal,
+            accuracy,
+            byType,
+            timeline: timelineData,
+            topUrls
+        })
+
+    } catch (error) {
+
+        console.log("❌ STATS ERROR:", error.message)
+
+        res.status(500).json({
+            error: "Stats error"
+        })
+    }
+})
+
+/* ==========================
+   CLEAN NULL LOGS
+========================== */
 router.delete("/cleanup/null", auth, async (req, res) => {
     try {
 

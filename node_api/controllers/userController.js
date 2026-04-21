@@ -65,7 +65,6 @@ exports.login = async (req, res) => {
             })
         }
 
-        // ✅ generate token
         const token = jwt.sign(
             { id: user.id, email: user.email },
             SECRET,
@@ -86,9 +85,6 @@ exports.login = async (req, res) => {
     }
 }
 
-/* ==========================
-   GET USERS (debug)
-========================== */
 exports.getUsers = async (req, res) => {
     try {
 

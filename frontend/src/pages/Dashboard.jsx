@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import Layout from "../components/Layout"
-import "./Dashboard.css"
+import "./dashboard.css"
 
 const TYPE_STYLES = {
   attack:                { bg: "#fef2f2", color: "#ef4444", dot: "#ef4444" },
