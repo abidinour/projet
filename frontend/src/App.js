@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard"
 import Simulation from "./pages/Simulation"
 import Statistiques from "./pages/Statistiques"
 import Admins from "./pages/Admins"
+import Chatbot from "./pages/Chatbot"
 
 import ProtectedRoute from "./components/ProtectedRoute"
 
@@ -47,6 +48,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Admins />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/chatbot"
+          element={
+            <ProtectedRoute>
+              <Chatbot />
             </ProtectedRoute>
           }
         />
