@@ -6,10 +6,89 @@
 
 .stats h1 {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
-/* KPI */
+/* FILTER BUTTON */
+.filter-btn {
+  background: #111827;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.filter-btn:hover {
+  background: #1f2937;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  width: 450px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* FORM GRID */
+.filter-grid {
+  display: grid;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.filter-grid input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+/* ACTIONS */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.apply-btn {
+  background: #10b981;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+}
+
+.reset-btn {
+  background: #f59e0b;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+}
+
+.close-btn {
+  background: #ef4444;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+}
+
+/* KPIs */
 .kpis {
   display: flex;
   gap: 20px;
@@ -45,6 +124,7 @@
   width: 100%;
 }
 
+/* TABLE */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -59,4 +139,36 @@ th {
 td {
   padding: 10px;
   border-bottom: 1px solid #ddd;
+}
+
+
+.modal {
+  width: 520px;
+  max-width: 90%;
+}
+
+/* select style */
+.filter-grid select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+}
+
+/* better buttons */
+.apply-btn,
+.reset-btn,
+.close-btn {
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.apply-btn:hover,
+.reset-btn:hover,
+.close-btn:hover {
+  transform: translateY(-1px);
 }

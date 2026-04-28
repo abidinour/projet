@@ -1,132 +1,161 @@
-import { useState } from "react"
-import Layout from "../components/Layout"
-import "./Chatbot.css"
+import { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import Layout from "../components/Layout";
+import "./Chatbot.css";
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([
     {
       sender: "bot",
-      text: "Hello 👋 I am your Security AI Assistant. How can I help you today?"
-    }
-  ])
+      text: "Hello 👋 I am your Security AI Assistant. I can help you understand web attacks, suspicious activities, and platform security status.",
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    },
+  ]);
 
-  const [input, setInput] = useState("")
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const getBotResponse = (text) => {
-    const msg = text.toLowerCase()
+  const messagesEndRef = useRef(null);
 
-    if (
-      msg.includes("sql") ||
-      msg.includes("injection") ||
-      msg.includes("or 1=1")
-    ) {
-      return "SQL Injection (SQLi) is a web attack where malicious SQL queries are inserted into input fields to manipulate the database."
-    }
+  const suggestions = [
+    "What is SQL Injection?",
+    "Explain XSS attack",
+    "How many attacks today?",
+    "Current security status",
+  ];
 
-    if (
-      msg.includes("xss") ||
-      msg.includes("cross site scripting")
-    ) {
-      return "XSS (Cross-Site Scripting) is an attack where malicious JavaScript code is injected into web pages viewed by other users."
-    }
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages, loading]);
 
-    if (msg.includes("csrf")) {
-      return "CSRF (Cross-Site Request Forgery) tricks authenticated users into performing unwanted actions on a web application."
-    }
+  const getCurrentTime = () => {
+    return new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
-    if (
-      msg.includes("bonjour") ||
-      msg.includes("hello") ||
-      msg.includes("salut")
-    ) {
-      return "Hello 👋 I am your Security AI Assistant. I can help you understand web attacks and platform security status."
-    }
+  const sendMessage = async (customText = null) => {
+    const finalMessage = customText || input;
 
-    if (
-      msg.includes("profil") ||
-      msg.includes("profile")
-    ) {
-      return "Your profile information is managed securely inside the admin dashboard."
-    }
-
-    if (
-      msg.includes("attaque") ||
-      msg.includes("attacks today") ||
-      msg.includes("combien")
-    ) {
-      return "Today's detected attacks include suspicious SQL Injection attempts, XSS payloads, and abnormal traffic patterns."
-    }
-
-    if (
-      msg.includes("security status") ||
-      msg.includes("status")
-    ) {
-      return "Current security status: System protected ✅ No critical threats detected."
-    }
-
-    return "I'm still learning. Try asking about SQL Injection, XSS, CSRF, attacks today, or security status."
-  }
-
-  const sendMessage = () => {
-    if (!input.trim()) return
+    if (!finalMessage.trim()) return;
 
     const userMessage = {
       sender: "user",
-      text: input
+      text: finalMessage,
+      time: getCurrentTime(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("token"); // 👈 مهم
+
+      const res = await axios.post(
+        "http://localhost:5000/chatbot/message",
+        { message: finalMessage },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const botMessage = {
+        sender: "bot",
+        text: res.data.reply,
+        time: getCurrentTime(),
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.log(error);
+
+      const botMessage = {
+        sender: "bot",
+        text: "Server connection error. Please try again.",
+        time: getCurrentTime(),
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
     }
 
-    const botMessage = {
-      sender: "bot",
-      text: getBotResponse(input)
-    }
-
-    setMessages([...messages, userMessage, botMessage])
-    setInput("")
-  }
+    setLoading(false);
+  };
 
   return (
     <Layout>
-      <div className="chatbot-page">
-
+      <div className="chatbot-container">
         <div className="chatbot-header">
-          <h1>Security AI Chatbot</h1>
-          <p>Ask me about SQL Injection, XSS, attacks, and system security.</p>
+          <div className="header-info">
+            <div>
+              <h1>Security AI Chatbot</h1>
+              <p>
+                Ask me about SQL Injection, XSS, attacks, suspicious requests, and platform security.
+              </p>
+            </div>
+
+            <div className="status-badge">
+              <span className="dot"></span>
+              AI Protection Active
+            </div>
+          </div>
         </div>
 
-        <div className="chatbot-box">
-
-          <div className="messages">
-            {messages.map((msg, index) => (
-              <div
+        <div className="chat-window">
+          <div className="suggestions">
+            {suggestions.map((item, index) => (
+              <button
                 key={index}
-                className={`message ${msg.sender}`}
+                className="suggestion-btn"
+                onClick={() => sendMessage(item)}
               >
-                <span>
-                  {msg.sender === "bot" ? "🤖" : "👤"}
-                </span>
-                <p>{msg.text}</p>
-              </div>
+                {item}
+              </button>
             ))}
           </div>
 
-          <div className="chat-input">
-            <input
-              type="text"
-              placeholder="Type your question..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" && sendMessage()
-              }
-            />
+          {messages.map((msg, index) => (
+            <div key={index} className={`message-wrapper ${msg.sender}`}>
+              <div className={`message-bubble-wrapper ${msg.sender}`}>
+                <div className="message-bubble">{msg.text}</div>
+                <span className="message-time">{msg.time}</span>
+              </div>
+            </div>
+          ))}
 
-            <button onClick={sendMessage}>
-              Send
-            </button>
-          </div>
+          {loading && (
+            <div className="message-wrapper bot">
+              <div className="message-bubble bot typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          )}
 
+          <div ref={messagesEndRef}></div>
+        </div>
+
+        <div className="input-area">
+          <input
+            type="text"
+            placeholder="Type your security question..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          />
+
+          <button onClick={() => sendMessage()}>Send</button>
         </div>
       </div>
     </Layout>
-  )
+  );
 }
