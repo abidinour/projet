@@ -18,6 +18,10 @@ export default function Chatbot() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ✅ NEW
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+
   const messagesEndRef = useRef(null);
 
   const suggestions = [
@@ -32,6 +36,91 @@ export default function Chatbot() {
       behavior: "smooth",
     });
   }, [messages, loading]);
+
+  /*
+  =========================
+  🎤 VOICE SETUP
+  =========================
+  */
+  useEffect(() => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      console.log("Voice not supported");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.onerror = (event) => {
+      console.log("Voice error:", event.error);
+
+      if (
+        event.error !== "no-speech" &&
+        event.error !== "network"
+      ) {
+        alert("Voice Error: " + event.error);
+      }
+
+      setIsListening(false);
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+
+      console.log("🎯 Voice:", transcript);
+
+      setInput(transcript);
+
+      // ✅ AUTO SEND
+      setTimeout(() => {
+        sendMessage(transcript);
+      }, 500);
+    };
+
+    recognitionRef.current = recognition;
+  }, []);
+
+  /*
+  =========================
+  🎤 START VOICE
+  =========================
+  */
+  const startVoiceRecognition = () => {
+    if (!recognitionRef.current) {
+      alert("Voice not supported");
+      return;
+    }
+
+    if (isListening) return;
+
+    try {
+      recognitionRef.current.stop();
+
+      setTimeout(() => {
+        try {
+          recognitionRef.current.start();
+        } catch (e) {
+          console.log("Start error:", e.message);
+        }
+      }, 300);
+    } catch (e) {
+      console.log("Restart error:", e.message);
+    }
+  };
 
   const getCurrentTime = () => {
     return new Date().toLocaleTimeString([], {
@@ -56,7 +145,7 @@ export default function Chatbot() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token"); // 👈 مهم
+      const token = localStorage.getItem("token");
 
       const res = await axios.post(
         "http://localhost:5000/chatbot/message",
@@ -98,7 +187,8 @@ export default function Chatbot() {
             <div>
               <h1>Security AI Chatbot</h1>
               <p>
-                Ask me about SQL Injection, XSS, attacks, suspicious requests, and platform security.
+                Ask me about SQL Injection, XSS, attacks,
+                suspicious requests, and platform security.
               </p>
             </div>
 
@@ -152,6 +242,11 @@ export default function Chatbot() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           />
+
+          {/* 🎤 VOICE BUTTON */}
+          <button onClick={startVoiceRecognition}>
+            {isListening ? "🎙 Listening..." : "🎤"}
+          </button>
 
           <button onClick={() => sendMessage()}>Send</button>
         </div>

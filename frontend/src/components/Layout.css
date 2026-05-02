@@ -1,10 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM Sans:wght@400;500;600;700&display=swap');
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
+/* ── MAIN LAYOUT ── */
 .layout-shell {
   display: flex;
-  height: 100vh;
+  min-height: 100vh; /* FIX: بدل height */
   font-family: 'DM Sans', sans-serif;
   background: #f4f6fa;
   color: #1a1a2e;
@@ -21,6 +26,7 @@
   flex-shrink: 0;
 }
 
+/* LOGO */
 .layout-logo {
   display: flex;
   align-items: center;
@@ -72,11 +78,7 @@
   font-weight: 600;
 }
 
-.layout-nav-item.active svg {
-  color: #14b8a6;
-}
-
-/* USER */
+/* USER BLOCK */
 .layout-user-block {
   margin-top: auto;
   padding: 12px;
@@ -101,11 +103,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
-.layout-user-name  { font-size: 13px; font-weight: 600; color: #1a1a2e; }
-.layout-user-email { font-size: 11px; color: #9ca3af; }
+.layout-user-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.layout-user-email {
+  font-size: 11px;
+  color: #9ca3af;
+}
 
 .layout-auth-badge {
   margin-top: 5px;
@@ -122,7 +130,6 @@
   height: 7px;
   border-radius: 50%;
   background: #16a34a;
-  display: inline-block;
 }
 
 /* LOGOUT */
@@ -149,10 +156,12 @@
   color: #ef4444;
 }
 
-/* ── PAGE CONTENT ── */
+/* ── CONTENT ── */
 .layout-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow-y: auto; /* FIX: enable scroll */
+  padding: 20px;
 }

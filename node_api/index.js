@@ -1,6 +1,6 @@
-require("dotenv").config() 
+require("dotenv").config()
 
- const express = require("express")
+const express = require("express")
 const cors = require("cors")
 
 const app = express()
@@ -10,17 +10,18 @@ app.use(express.json())
 
 const sequelize = require("./config/database")
 
+// ROUTES
 const userRoutes = require("./routes/userRoutes")
 const logRoutes = require("./routes/logRoutes")
 const simulationRoutes = require("./routes/simulationRoutes")
 const adminRoutes = require("./routes/adminRoutes")
-const chatbotRoutes = require("./routes/chatbotRoutes");
+const chatbotRoutes = require("./routes/chatbotRoutes")
 
 app.use("/", userRoutes)
 app.use("/logs", logRoutes)
 app.use("/simulation", simulationRoutes)
 app.use("/admins", adminRoutes)
-app.use("/chatbot", chatbotRoutes);
+app.use("/chatbot", chatbotRoutes)
 
 app.get("/", (req, res) => {
   res.send("🚀 AI Security Server Running")
@@ -31,7 +32,8 @@ async function startServer() {
     await sequelize.authenticate()
     console.log("✅ Database connected")
 
-    await sequelize.sync({ alter: true })
+    // ✅ SAFE SYNC (IMPORTANT)
+    await sequelize.sync()
     console.log("✅ Tables synced")
 
     app.listen(5000, () => {

@@ -5,105 +5,70 @@ const OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
 const OLLAMA_MODEL = "phi"
 
 /*
-==================================================
+===============================
 NORMALIZE ATTACK TYPE
-==================================================
+===============================
 */
 function normalizeAttackType(type) {
   if (!type) return "Unknown"
 
   const t = String(type).toLowerCase().trim()
 
-  if (t === "sql_injection" || t === "sql injection") {
-    return "SQL Injection"
-  }
-
-  if (t === "xss") {
-    return "XSS"
-  }
-
-  if (t === "brute_force" || t === "brute force") {
-    return "Brute Force"
-  }
-
-  if (t === "path_traversal" || t === "path traversal") {
-    return "Path Traversal"
-  }
-
-  if (t === "command_injection" || t === "command injection") {
-    return "Command Injection"
-  }
-
-  if (t === "csrf") {
-    return "CSRF"
-  }
-
-  if (t === "none" || t === "normal request") {
-    return "Normal Request"
-  }
-
-  if (t === "suspicious attack") {
-    return "Suspicious Attack"
-  }
+  if (t.includes("sql")) return "SQL Injection"
+  if (t.includes("xss")) return "XSS"
+  if (t.includes("brute")) return "Brute Force"
+  if (t.includes("path")) return "Path Traversal"
+  if (t.includes("command")) return "Command Injection"
+  if (t.includes("csrf")) return "CSRF"
+  if (t.includes("none") || t.includes("normal")) return "Normal Request"
+  if (t.includes("suspicious")) return "Suspicious Attack"
 
   return type
 }
 
 /*
-==================================================
-DIRECT MALICIOUS PAYLOAD DETECTION
-==================================================
+===============================
+DETECT MALICIOUS PAYLOAD
+===============================
 */
 function isDangerousPayload(message) {
   const msg = message.toLowerCase()
 
-  const dangerousPatterns = [
+  const patterns = [
     "or 1=1",
     "union select",
     "drop table",
     "<script",
     "alert(",
     "onerror=",
-    "<img",
     "../",
     "..\\",
     "etc/passwd",
     "cmd.exe",
-    "bash -i",
     "whoami",
     "admin'",
-    "select * from",
-    "insert into",
-    "delete from"
+    "select * from"
   ]
 
-  return dangerousPatterns.some((pattern) =>
-    msg.includes(pattern)
-  )
+  return patterns.some(p => msg.includes(p))
 }
 
 /*
-==================================================
-OLLAMA SAFE RESPONSE
-==================================================
+===============================
+OLLAMA AI
+===============================
 */
 async function askOllama(message) {
   try {
     const prompt = `
 You are a professional Cybersecurity AI Assistant.
 
-STRICT RULES:
-- Only answer cybersecurity related questions
-- Never generate games
-- Never generate puzzles
-- Never generate roleplay
-- Never generate stories
-- Never generate logical riddles
-- Never invent fake incidents
-- Keep answers short, professional, and clear
-- If question is unrelated to cybersecurity, politely redirect
+RULES:
+- Only cybersecurity topics
+- No games / no puzzles / no stories
+- Short and clear answers
 
-User Question:
+User:
 ${message}
 `
 
@@ -114,89 +79,77 @@ ${message}
         prompt,
         stream: false
       },
-      {
-        timeout: 30000
-      }
+      { timeout: 20000 }
     )
 
-    return (
-      response.data.response?.trim() ||
+    return response.data.response?.trim() ||
       "I can help with cybersecurity questions only."
-    )
-  } catch (error) {
-    console.log("❌ OLLAMA ERROR:", error.message)
 
-    return "AI assistant temporarily unavailable. Please try again."
+  } catch (err) {
+    console.log("❌ OLLAMA ERROR:", err.message)
+    return "AI temporarily unavailable."
   }
 }
 
 /*
-==================================================
-MAIN CHATBOT CONTROLLER
-==================================================
+===============================
+MAIN CONTROLLER
+===============================
 */
 exports.chatbotMessage = async (req, res) => {
   try {
     const { message } = req.body
 
     if (!message || !message.trim()) {
-      return res.json({
-        reply: "Please enter a valid message."
-      })
+      return res.json({ reply: "Please enter a valid message." })
     }
 
     const msg = message.toLowerCase().trim()
 
     /*
-    ==========================================
+    =========================
     GREETING
-    ==========================================
+    =========================
     */
-    if (
-      msg === "hello" ||
-      msg === "hi" ||
-      msg === "bonjour" ||
-      msg === "salut"
-    ) {
+    if (["hello", "hi", "bonjour", "salut"].includes(msg)) {
       return res.json({
         reply:
-          "Hello 👋 I am your Security AI Assistant. I can help you understand web attacks, suspicious requests, security monitoring, and platform protection."
+          "Hello 👋 I am your Security AI Assistant. I can help you with attacks, monitoring, and platform security."
       })
     }
 
     /*
-    ==========================================
-    DIRECT ATTACK PAYLOAD DETECTION
-    ==========================================
+    =========================
+    MALICIOUS PAYLOAD
+    =========================
     */
     if (isDangerousPayload(message)) {
       return res.json({
         reply:
           "⚠️ Suspicious malicious request detected.\n" +
-          "Attack Type: High Risk Payload\n" +
           "Risk Level: Critical\n" +
-          "This request matches known malicious attack patterns such as SQL Injection, XSS, Path Traversal, or Command Injection and has been flagged by the security engine."
+          "Possible SQL Injection / XSS / Command Injection."
       })
     }
 
     /*
-    ==========================================
-    ATTACKS TODAY (REAL DATABASE)
-    ==========================================
+    =========================
+    ATTACK STATS
+    =========================
     */
     if (
-      msg.includes("how many attacks") ||
       msg.includes("attacks today") ||
-      msg.includes("today attacks") ||
-      msg.includes("show attack statistics") ||
-      msg.includes("what attacks were detected today")
+      msg.includes("how many attacks") ||
+      msg.includes("statistics")
     ) {
-      const logs = await AttackLog.findAll()
+      const logs = await AttackLog.findAll({
+        attributes: ["attack_type"]
+      })
 
       const total = logs.length
       const byType = {}
 
-      logs.forEach((log) => {
+      logs.forEach(log => {
         const type = normalizeAttackType(log.attack_type)
         byType[type] = (byType[type] || 0) + 1
       })
@@ -205,7 +158,7 @@ exports.chatbotMessage = async (req, res) => {
 
       Object.keys(byType)
         .sort((a, b) => byType[b] - byType[a])
-        .forEach((type) => {
+        .forEach(type => {
           details += `- ${type}: ${byType[type]}\n`
         })
 
@@ -215,154 +168,84 @@ exports.chatbotMessage = async (req, res) => {
     }
 
     /*
-    ==========================================
-    MOST FREQUENT ATTACK
-    ==========================================
+    =========================
+    MOST FREQUENT
+    =========================
     */
-    if (
-      msg.includes("most frequent attack") ||
-      msg.includes("which attack is most frequent") ||
-      msg.includes("which attack is most frequent?") ||
-      msg.includes("most frequent detected attack")
-    ) {
-      const logs = await AttackLog.findAll()
+    if (msg.includes("most frequent")) {
+      const logs = await AttackLog.findAll({
+        attributes: ["attack_type"]
+      })
 
-      const byType = {}
+      const count = {}
 
-      logs.forEach((log) => {
+      logs.forEach(log => {
         const type = normalizeAttackType(log.attack_type)
-
         if (type !== "Normal Request") {
-          byType[type] = (byType[type] || 0) + 1
+          count[type] = (count[type] || 0) + 1
         }
       })
 
-      let topAttack = "No attacks detected"
+      let top = "None"
       let max = 0
 
-      for (const type in byType) {
-        if (byType[type] > max) {
-          max = byType[type]
-          topAttack = type
+      for (const t in count) {
+        if (count[t] > max) {
+          max = count[t]
+          top = t
         }
       }
 
       return res.json({
-        reply: `The most frequent detected attack is ${topAttack} with ${max} recorded attempts.`
+        reply: `Most frequent attack: ${top} (${max} times)`
       })
     }
 
     /*
-    ==========================================
+    =========================
     RECENT ATTACKS
-    ==========================================
+    =========================
     */
-    if (
-      msg.includes("show recent attacks") ||
-      msg.includes("recent attacks") ||
-      msg.includes("latest threats")
-    ) {
+    if (msg.includes("recent")) {
       const logs = await AttackLog.findAll({
         order: [["timestamp", "DESC"]],
         limit: 10
       })
 
-      if (!logs.length) {
-        return res.json({
-          reply: "No recent attacks were detected."
-        })
-      }
+      let text = "Recent attacks:\n"
 
-      let details = "Recent detected attacks:\n"
-
-      logs.forEach((log, index) => {
-        const type = normalizeAttackType(log.attack_type)
-        const url = log.url || "/"
-
-        details += `${index + 1}. ${type} → ${url}\n`
+      logs.forEach((log, i) => {
+        text += `${i + 1}. ${normalizeAttackType(log.attack_type)} → ${log.url || "/"}\n`
       })
 
-      return res.json({
-        reply: details
-      })
+      return res.json({ reply: text })
     }
 
     /*
-    ==========================================
-    SUSPICIOUS LOGIN ATTEMPTS
-    ==========================================
-    */
-    if (
-      msg.includes("suspicious login") ||
-      msg.includes("login attempts")
-    ) {
-      return res.json({
-        reply:
-          "Yes. Multiple suspicious login attempts were detected including repeated failed authentications, unusual access patterns, and abnormal login requests flagged by the security monitoring system."
-      })
-    }
-
-    /*
-    ==========================================
-    MOST DANGEROUS ATTACK
-    ==========================================
-    */
-    if (msg.includes("most dangerous attack")) {
-      return res.json({
-        reply:
-          "SQL Injection is considered one of the most dangerous attacks because it can expose sensitive database information, bypass authentication, modify data, and compromise the entire system if protections are weak."
-      })
-    }
-
-    /*
-    ==========================================
+    =========================
     SECURITY STATUS
-    ==========================================
+    =========================
     */
-    if (
-      msg.includes("security status") ||
-      msg.includes("system secure") ||
-      msg.includes("is the system secure") ||
-      msg.includes("current security status")
-    ) {
+    if (msg.includes("security")) {
       return res.json({
-        reply:
-          "Current security status: Protected ✅ No critical threats detected. AI monitoring, logging, attack detection services, and database logging are active."
+        reply: "System secure ✅ Monitoring active. No critical threats."
       })
     }
 
     /*
-    ==========================================
-    PROTECTION RECOMMENDATIONS
-    ==========================================
+    =========================
+    FALLBACK AI
+    =========================
     */
-    if (
-      msg.includes("how to protect") ||
-      msg.includes("prevent attacks") ||
-      msg.includes("security recommendations") ||
-      msg.includes("how can we prevent")
-    ) {
-      return res.json({
-        reply:
-          "To protect against cyber attacks, use strong authentication, input validation, parameterized SQL queries, XSS filtering, CSRF protection, role-based access control, password hashing, rate limiting, firewalls, monitoring, and regular security audits."
-      })
-    }
+    const ai = await askOllama(message)
 
-    /*
-    ==========================================
-    FALLBACK → OLLAMA
-    ==========================================
-    */
-    const aiReply = await askOllama(message)
+    return res.json({ reply: ai })
 
-    return res.json({
-      reply: aiReply
-    })
   } catch (error) {
     console.log("❌ CHATBOT ERROR:", error.message)
 
     return res.status(500).json({
-      error: "Chatbot internal error"
+      error: "Internal chatbot error"
     })
   }
 }
