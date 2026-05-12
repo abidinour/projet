@@ -25,7 +25,8 @@ router.post("/simulate", async (req, res) => {
       const url = buildUrl(paths[0], profile)
 
       const aiRes = await axios.post(AI_URL, {
-        message: url
+        url: url,
+        content: ""
       })
 
       await AttackLog.create({

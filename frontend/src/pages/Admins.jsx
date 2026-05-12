@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { adminService } from "../services/adminService";
 import Layout from "../components/Layout";
 import Dialog from "../components/Dialog";
-import "./Admins.css";
+import "./admins.css";
 
 const emptyForm = { name: "", email: "", password: "" };
 

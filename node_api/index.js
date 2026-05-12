@@ -32,7 +32,6 @@ async function startServer() {
     await sequelize.authenticate()
     console.log("✅ Database connected")
 
-    // ✅ SAFE SYNC (IMPORTANT)
     await sequelize.sync()
     console.log("✅ Tables synced")
 
