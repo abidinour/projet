@@ -12,18 +12,17 @@ from sklearn.metrics import classification_report
 
 print("Loading dataset...")
 
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR     = os.path.dirname(__file__)
 DATASET_PATH = os.path.join(BASE_DIR, "..", "database", "csic_database.csv")
-MODELS_DIR = os.path.join(BASE_DIR, "..", "models")
+MODELS_DIR   = os.path.join(BASE_DIR, "..", "models")
 
 os.makedirs(MODELS_DIR, exist_ok=True)
 
 data = pd.read_csv(DATASET_PATH, encoding="latin-1")
 
-data["URL"] = data["URL"].fillna("")
+data["URL"]     = data["URL"].fillna("")
 data["content"] = data["content"].fillna("")
-
-data["text"] = data["URL"] + " " + data["content"]
+data["text"]    = data["URL"] + " " + data["content"]
 
 y = data["classification"]
 
@@ -31,24 +30,32 @@ print("Dataset distribution:")
 print(y.value_counts())
 
 
+# ===============================
+# Feature Extraction  ← FIXED
+# ===============================
 def extract_features(url, content):
-
-    url = str(url)
-    content = str(content)
+    url      = str(url)
+    content  = str(content)
+    combined = (url + " " + content).lower()   # ← was missing before
 
     return [
-        len(url),                         # طول الرابط
-        len(content),                     # طول المحتوى
-        url.count("&"),                   # عدد parameters
+        len(url),
+        len(content),
+        url.count("&"),
         url.count("="),
         url.count("?"),
-        sum(c.isdigit() for c in url),    # عدد الأرقام
-        sum(c in "!@#$%^&*()" for c in url),  # رموز مشبوهة
-        int("../" in url or "..\\" in url),   # Path Traversal
-        int("<script" in url.lower()),        # XSS
-        int("select" in url.lower()),         # SQL Injection
-        int("union" in url.lower()),
-        int("drop" in url.lower())
+        sum(c.isdigit() for c in url),
+        sum(c in "!@#$%^&*()" for c in url),
+        int("../" in url or "..\\" in url),
+        int("<script" in url.lower()),
+        int("select" in url.lower()),
+        int("union"  in url.lower()),
+        int("drop"   in url.lower()),           # ← comma was missing here
+        int("http://"  in combined and "=" in url),
+        int("https://" in combined and "=" in url),
+        int("ftp://"   in combined),
+        int("etc/passwd" in combined),
+        int(";ls" in combined or "|whoami" in combined),
     ]
 
 
@@ -61,21 +68,19 @@ X_num = np.array(num_features.tolist())
 
 vectorizer = TfidfVectorizer(
     max_features=12000,
-    ngram_range=(1,2),
+    ngram_range=(1, 2),
     token_pattern=r"[^\s]+"
 )
 
 X_text = vectorizer.fit_transform(data["text"])
 
-scaler = MinMaxScaler()
-
+scaler       = MinMaxScaler()
 X_num_scaled = scaler.fit_transform(X_num)
 
 X = sp.hstack([X_text, sp.csr_matrix(X_num_scaled)])
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
+    X, y,
     test_size=0.2,
     random_state=42,
     stratify=y
@@ -84,15 +89,13 @@ X_train, X_test, y_train, y_test = train_test_split(
 print("Training model...")
 
 model = LinearSVC(class_weight="balanced")
-
 model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
-
 print(classification_report(y_test, y_pred))
 
-joblib.dump(model, os.path.join(MODELS_DIR, "best_model.pkl"))
+joblib.dump(model,      os.path.join(MODELS_DIR, "best_model.pkl"))
 joblib.dump(vectorizer, os.path.join(MODELS_DIR, "vectorizer.pkl"))
-joblib.dump(scaler, os.path.join(MODELS_DIR, "scaler.pkl"))
+joblib.dump(scaler,     os.path.join(MODELS_DIR, "scaler.pkl"))
 
-print("Model saved")
+print("✅ Model saved successfully")

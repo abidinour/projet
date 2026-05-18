@@ -69,7 +69,7 @@ function MiniPieChart({ colors }) {
 export default function Simulation() {
   const [preset, setPreset]     = useState(null)
   const [profile, setProfile]   = useState("normal")
-  const [volume, setVolume]     = useState(5000)
+  const [volume, setVolume]     = useState(3307)
   const [duration, setDuration] = useState(30)
   const [paths, setPaths]       = useState("/login, /search, /api/*")
   const [loading, setLoading]   = useState(false)
@@ -85,7 +85,7 @@ export default function Simulation() {
   const startSimulation = async () => {
     setLoading(true)
     try {
-      await axios.post("http://localhost:5000/simulation/simulate", {
+      await axios.post("http://localhost:3307/simulation/simulate", {
         profile, volume,
         paths: paths.split(",").map(s => s.trim())
       })

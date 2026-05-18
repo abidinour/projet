@@ -6,8 +6,8 @@ import Simulation from "./pages/Simulation"
 import Statistiques from "./pages/Statistiques"
 import Admins from "./pages/Admins"
 import Chatbot from "./pages/Chatbot"
-
 import ProtectedRoute from "./components/ProtectedRoute"
+import Notifications from "./pages/Notifications"
 
 function App() {
   return (
@@ -59,6 +59,10 @@ function App() {
               <Chatbot />
             </ProtectedRoute>
           }
+        />
+        <Route 
+          path="/notifications" 
+          element={<Notifications />}
         />
 
       </Routes>

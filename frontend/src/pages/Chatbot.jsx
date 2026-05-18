@@ -148,7 +148,7 @@ export default function Chatbot() {
       const token = localStorage.getItem("token");
 
       const res = await axios.post(
-        "http://localhost:5000/chatbot/message",
+        "http://localhost:3307/chatbot/message",
         { message: finalMessage },
         {
           headers: {

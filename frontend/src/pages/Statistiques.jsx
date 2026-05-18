@@ -59,7 +59,7 @@ export default function Statistiques() {
       const query = params.toString()
 
       const res = await axios.get(
-        `http://localhost:5000/logs/stats?${query}`,
+        `http://localhost:3307/logs/stats?${query}`,
         {
           headers: {
             Authorization: `Bearer ${token}`

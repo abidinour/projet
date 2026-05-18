@@ -12,7 +12,7 @@ app = FastAPI()
 # ===============================
 # Load Models
 # ===============================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.join(BASE_DIR, "..", "models")
 
 model      = joblib.load(os.path.join(MODELS_DIR, "best_model.pkl"))
@@ -23,15 +23,17 @@ scaler     = joblib.load(os.path.join(MODELS_DIR, "scaler.pkl"))
 # Request Model
 # ===============================
 class RequestData(BaseModel):
-    url: str
+    url:     str
     content: str = ""
 
 # ===============================
-# Feature Extraction
+# Feature Extraction  ← FIXED
 # ===============================
 def extract_features(url, content):
-    url     = str(url)
-    content = str(content)
+    url      = str(url)
+    content  = str(content)
+    combined = (url + " " + content).lower()   # ← was missing before
+
     return [
         len(url),
         len(content),
@@ -44,7 +46,12 @@ def extract_features(url, content):
         int("<script" in url.lower()),
         int("select" in url.lower()),
         int("union"  in url.lower()),
-        int("drop"   in url.lower())
+        int("drop"   in url.lower()),           # ← comma was missing here
+        int("http://"  in combined and "=" in url),
+        int("https://" in combined and "=" in url),
+        int("ftp://"   in combined),
+        int("etc/passwd" in combined),
+        int(";ls" in combined or "|whoami" in combined),
     ]
 
 @app.get("/")
@@ -59,16 +66,16 @@ def predict(data: RequestData):
     try:
         attack_type = detect_attack_type(data.url, data.content)
 
-        # Rule-based shortcut
-        if attack_type != "unknown_attack":
+        # Rule-based shortcut  ← FIXED: was "unknown_attack", now "none"
+        if attack_type != "none":
             return {
-                "url":        data.url,
-                "prediction": "attack",
+                "url":         data.url,
+                "prediction":  "attack",
                 "attack_type": attack_type,
-                "confidence": 0.95
+                "confidence":  0.95
             }
 
-        # ML path
+        # ML path (runs only when rules find nothing)
         text       = data.url + " " + data.content
         text_vec   = vectorizer.transform([text])
         num_scaled = scaler.transform([extract_features(data.url, data.content)])
@@ -82,28 +89,28 @@ def predict(data: RequestData):
         except:
             confidence = 0.5
 
-        if pred == 1 and confidence > 0.8:
+        if pred == 1 and confidence > 0.5:   # ← lowered from 0.8 to 0.5
             return {
-                "url":        data.url,
-                "prediction": "attack",
+                "url":         data.url,
+                "prediction":  "attack",
                 "attack_type": "unknown_attack",
-                "confidence": confidence
+                "confidence":  confidence
             }
 
         return {
-            "url":        data.url,
-            "prediction": "normal",
+            "url":         data.url,
+            "prediction":  "normal",
             "attack_type": "none",
-            "confidence": confidence
+            "confidence":  confidence
         }
 
     except Exception as e:
         return {
-            "url":        data.url,
-            "prediction": "normal",
+            "url":         data.url,
+            "prediction":  "error",
             "attack_type": "none",
-            "confidence": 0.0,
-            "error":      str(e)
+            "confidence":  0.0,
+            "error":       str(e)
         }
 
 # ===============================

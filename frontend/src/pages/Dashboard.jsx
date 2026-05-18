@@ -48,7 +48,7 @@ const fetchLogs = async () => {
 
     console.log("📤 Sending request to /logs with token:", `Bearer ${token}`)
 
-    const res = await axios.get("http://localhost:5000/logs", {
+    const res = await axios.get("http://localhost:3307/logs", {
       headers: { Authorization: `Bearer ${token}` }
     })
 

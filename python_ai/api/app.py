@@ -5,22 +5,29 @@ import numpy as np
 import scipy.sparse as sp
 import os
 
+from attack_detector import detect_attack_type   # ← import shared detector
+
 app = FastAPI()
 
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR   = os.path.dirname(__file__)
 MODELS_DIR = os.path.join(BASE_DIR, "..", "models")
 
-model = joblib.load(os.path.join(MODELS_DIR, "best_model.pkl"))
+model      = joblib.load(os.path.join(MODELS_DIR, "best_model.pkl"))
 vectorizer = joblib.load(os.path.join(MODELS_DIR, "vectorizer.pkl"))
-scaler = joblib.load(os.path.join(MODELS_DIR, "scaler.pkl"))
+scaler     = joblib.load(os.path.join(MODELS_DIR, "scaler.pkl"))
 
 
 class PredictionRequest(BaseModel):
     message: str
 
 
+# ===============================
+# Feature Extraction  ← FIXED
+# ===============================
 def extract_features(text):
-    text = str(text)
+    text     = str(text)
+    combined = text.lower()                      # ← was missing before
+
     return [
         len(text),
         0,
@@ -30,29 +37,16 @@ def extract_features(text):
         sum(c.isdigit() for c in text),
         sum(c in "!@#$%^&*()" for c in text),
         int("../" in text or "..\\" in text),
-        int("<script" in text.lower()),
-        int("select" in text.lower()),
-        int("union" in text.lower()),
-        int("drop" in text.lower())
+        int("<script" in combined),
+        int("select" in combined),
+        int("union"  in combined),
+        int("drop"   in combined),               # ← comma was missing here
+        int("http://"  in combined),
+        int("https://" in combined),
+        int("ftp://"   in combined),
+        int("etc/passwd" in combined),
+        int(";ls" in combined or "|whoami" in combined),
     ]
-
-
-def detect_attack_type(msg):
-    msg = msg.lower()
-
-    if any(x in msg for x in ["or 1=1", "union select", "drop table", "admin'", "select *"]):
-        return "SQL Injection", 0.98
-
-    if any(x in msg for x in ["<script>", "alert(", "onerror=", "<img"]):
-        return "XSS", 0.97
-
-    if any(x in msg for x in ["brute force", "password attack", "login attack"]):
-        return "Brute Force", 0.94
-
-    if any(x in msg for x in ["../", "..\\"]):
-        return "Path Traversal", 0.92
-
-    return "Suspicious Attack", 0.90
 
 
 @app.get("/")
@@ -64,9 +58,22 @@ def root():
 def predict(data: PredictionRequest):
     message = data.message
 
-    text_features = vectorizer.transform([message])
+    # Rule-based check first
+    attack_type = detect_attack_type(message)
+
+    if attack_type != "none":
+        return {
+            "prediction":  "1",
+            "result":      "⚠️ Attack Detected",
+            "risk":        "High Risk",
+            "attack_type": attack_type,
+            "confidence":  0.95
+        }
+
+    # ML fallback
+    text_features    = vectorizer.transform([message])
     numeric_features = np.array([extract_features(message)])
-    numeric_scaled = scaler.transform(numeric_features)
+    numeric_scaled   = scaler.transform(numeric_features)
 
     final_input = sp.hstack([
         text_features,
@@ -74,23 +81,22 @@ def predict(data: PredictionRequest):
     ])
 
     prediction = str(model.predict(final_input)[0])
-
-    is_attack = prediction.lower() in ["anomalous", "attack", "malicious", "1"]
+    is_attack  = prediction.lower() in ["anomalous", "attack", "malicious", "1"]
 
     if is_attack:
-        attack_type, confidence = detect_attack_type(message)
-        result = "⚠️ Suspicious Attack Detected"
-        risk = "High Risk"
+        result     = "⚠️ Suspicious Attack Detected"
+        risk       = "High Risk"
+        confidence = 0.75
     else:
         attack_type = "Normal Request"
-        confidence = 0.95
-        result = "✅ Normal Safe Request"
-        risk = "Low Risk"
+        confidence  = 0.95
+        result      = "✅ Normal Safe Request"
+        risk        = "Low Risk"
 
     return {
-        "prediction": prediction,
-        "result": result,
-        "risk": risk,
+        "prediction":  prediction,
+        "result":      result,
+        "risk":        risk,
         "attack_type": attack_type,
-        "confidence": confidence
+        "confidence":  confidence
     }

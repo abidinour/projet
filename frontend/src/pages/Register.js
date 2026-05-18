@@ -13,7 +13,7 @@ function Register() {
     e.preventDefault()
 
     try {
-      await axios.post("http://localhost:5000/register", {
+      await axios.post("http://localhost:3307/register", {
         name,
         email,
         password
