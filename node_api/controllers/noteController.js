@@ -113,3 +113,38 @@ exports.deleteNote = async (req, res) => {
     })
   }
 }
+
+// ==========================
+// STUDENT NOTES
+// ==========================
+exports.getStudentNotes = async (req, res) => {
+
+  try {
+
+    const notes = await Note.findAll({
+
+      where: {
+        studentId: req.params.id
+      },
+
+      include: [
+        {
+          model: Subject,
+          attributes: ["name"]
+        }
+      ]
+
+    })
+
+    res.json(notes)
+
+  } catch (error) {
+
+    console.log(error)
+
+    res.status(500).json({
+      error: "Server error"
+    })
+
+  }
+}

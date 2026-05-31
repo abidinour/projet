@@ -10,4 +10,6 @@ router.put("/:id", ctrl.updateNote)
 
 router.delete("/:id", ctrl.deleteNote)
 
+router.get("/student/:id", ctrl.getStudentNotes)
+
 module.exports = router
